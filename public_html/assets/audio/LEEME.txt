@@ -1,0 +1,5 @@
+Coloca aquí tu canción (MP3 recomendado) con el nombre indicado en
+data/content.php → 'music' → 'local_file' (por defecto: nuestra-cancion.mp3).
+
+Usa solo una pista que tengas derecho a utilizar. Si este archivo no existe,
+la web usa el reproductor oficial de Spotify con la canción configurada.

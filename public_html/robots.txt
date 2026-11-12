@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /config/
+Disallow: /includes/
+Disallow: /data/
+Disallow: /storage/
+Disallow: /api/

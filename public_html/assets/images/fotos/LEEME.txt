@@ -1,0 +1,7 @@
+Sube aquí sus fotografías reales (JPG/PNG/WEBP) y referéncialas en
+data/content.php, por ejemplo:  'photo' => ['src' => 'fotos/primera-cita.jpg', 'alt' => '...']
+
+Consejo: reduce cada foto a ~2000 px en el lado mayor y ~300–500 KB
+(por ejemplo con https://squoosh.app). Si además subes una versión .webp con el
+mismo nombre (primera-cita.webp), la web la usará automáticamente.
+Las fotos nunca se recortan ni se deforman: se respetan sus proporciones.

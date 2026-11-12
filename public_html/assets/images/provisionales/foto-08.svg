@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1200" width="1500" height="1200">
+<defs>
+<radialGradient id="g" cx="30%" cy="25%" r="95%"><stop offset="0" stop-color="#e9d6bd"/><stop offset=".55" stop-color="#3b2028"/><stop offset="1" stop-color="#0e080a"/></radialGradient>
+<linearGradient id="l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".10"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+</defs>
+<rect width="1500" height="1200" fill="url(#g)"/>
+<rect width="1500" height="1200" fill="url(#l)"/>
+<rect x="60" y="60" width="1380" height="1080" fill="none" stroke="#e9d6bd" stroke-opacity=".35" stroke-width="2.4"/>
+<g fill="none" stroke="#e9d6bd" stroke-opacity=".55" stroke-width="3.6" transform="translate(750 528)">
+<rect x="-84" y="-60" width="168" height="120" rx="14"/>
+<circle r="34"/>
+</g>
+<text x="50%" y="672" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="60" fill="#f4ece1" fill-opacity=".85">Foto provisional</text>
+<text x="50%" y="732" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="26" letter-spacing="7" fill="#f4ece1" fill-opacity=".55">FOTO-08 · 5:4 · REEMPLÁZAME</text>
+</svg>

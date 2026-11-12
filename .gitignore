@@ -1,0 +1,11 @@
+# Configuración real (puede contener el código de acceso)
+public_html/config/config.php
+# Mensajes recibidos (privados)
+public_html/storage/*.json
+# Audio local: súbelo directamente al hosting si no quieres versionarlo
+public_html/assets/audio/*.mp3
+public_html/assets/audio/*.m4a
+public_html/assets/audio/*.ogg
+.DS_Store
+Thumbs.db
+__pycache__/
