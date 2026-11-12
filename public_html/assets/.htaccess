@@ -1,6 +1,6 @@
 # Archivos estáticos: nunca ejecutar scripts aquí (por si alguien sube un archivo).
-Options -ExecCGI -Indexes
-<FilesMatch "(?i)\.(php\d?|phtml|phar|pl|py|cgi|sh|asp|aspx|jsp|htm|html|shtml)$">
+# Nota: sin directivas "Options" (InfinityFree no las permite en subcarpetas y daría error 500).
+<FilesMatch "(?i)\.(php\d?|phtml|phar|pl|py|cgi|sh|asp|aspx|jsp|shtml)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
