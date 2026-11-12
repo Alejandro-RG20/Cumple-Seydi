@@ -27,3 +27,18 @@ pantalla de 320×568, escritorio 1280×800 y 1440×900.
 | 18 | `prefers-reduced-motion` y navegación sin JavaScript (contenido completo visible) | ✅ |
 
 Pendiente para ti, tras publicar: probar en tu iPhone/Android reales y la reproducción de Spotify con su cuenta.
+
+## Versión 2 · MySQL + panel (MariaDB 10 / Apache 2.4 / PHP 8.3)
+
+| Verificación | Resultado |
+|---|---|
+| `seydi.sql` importa sin errores (7 tablas, 7 fotos, 5 capítulos, 7 de galería, 5 momentos, usuario) | ✅ |
+| Instalador web: escribe `config/config.php`, ejecuta el SQL y se bloquea | ✅ |
+| La web lee todo de MySQL; 0 textos provisionales; fotos servidas por `foto.php` (WebP, caché) | ✅ |
+| `/database/seydi.sql`, `.gz`, `/config`, `/includes`, `/data` → 403 | ✅ |
+| Panel: login incorrecto rechazado, login correcto, guardar ajustes (se refleja en la web), validación de fecha | ✅ |
+| Subida de foto → WebP optimizada y añadida a la galería; no deja borrar fotos en uso | ✅ |
+| Editar capítulo; mensaje enviado desde la web llega al panel con aviso de "nuevo" | ✅ |
+| Cambio de contraseña; POST sin token CSRF rechazado; cerrar sesión | ✅ |
+| Reloj: en la última hora muestra minutos (no "0 días"); al llegar muestra "18 años" | ✅ |
+| Sin errores JavaScript; sin desbordes en escritorio y móvil | ✅ |

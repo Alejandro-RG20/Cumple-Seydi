@@ -22,12 +22,12 @@ $photos = (array) c('gallery', []);
     </header>
 
     <ul class="masonry" data-gallery>
-        <?php foreach ($photos as $i => $p): $p = (array) $p; $rel = image_path((string) ($p['src'] ?? '')) ?? 'provisionales/foto-01.svg'; [$w, $h] = image_dims($rel); ?>
+        <?php foreach ($photos as $i => $p): $p = (array) $p; $info = photo_info((string) ($p['src'] ?? '')); $w = $info['w']; $h = $info['h']; $alt = ($p['alt'] ?? '') !== '' ? $p['alt'] : $info['alt']; ?>
         <li class="masonry__item" data-reveal="rise" style="--d: <?= (int) ($i % 3) ?>">
             <button class="photo-card" type="button" data-index="<?= (int) $i ?>"
-                    data-full="<?= e(asset('images/' . $rel)) ?>" data-w="<?= (int) $w ?>" data-h="<?= (int) $h ?>"
+                    data-full="<?= e($info['url']) ?>" data-w="<?= (int) $w ?>" data-h="<?= (int) $h ?>"
                     data-caption="<?= e($p['caption'] ?? '') ?>" data-cursor="Ver"
-                    aria-label="Ver a pantalla completa: <?= e($p['alt'] ?? 'fotografía') ?>">
+                    aria-label="Ver a pantalla completa: <?= e($alt !== '' ? $alt : 'fotografía') ?>">
                 <span class="photo-card__frame" style="aspect-ratio: <?= (int) $w ?> / <?= (int) $h ?>">
                     <?= img($p, ['sizes' => '(min-width: 1100px) 30vw, (min-width: 700px) 45vw, 48vw']) ?>
                 </span>

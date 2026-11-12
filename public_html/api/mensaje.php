@@ -1,6 +1,7 @@
 <?php
 /**
- * Recibe la respuesta privada de ella y la guarda en /storage/mensajes.json
+ * Recibe la respuesta privada de ella y la guarda en MySQL (tabla messages);
+ * si no hay base de datos, en /storage/mensajes.json
  *
  * Seguridad:
  *  - Solo POST, token CSRF ligado a la sesión, campo trampa (honeypot)
@@ -71,54 +72,13 @@ if (count($_SESSION['reply_times']) >= $limit) {
     reply_out(false, 'Has enviado varios mensajes seguidos. Inténtalo más tarde.', 429, $wantsJson);
 }
 
-$dir = storage_dir();
-if (!is_dir($dir) && !@mkdir($dir, 0750, true)) {
-    reply_out(false, 'No se pudo guardar el mensaje (almacenamiento).', 500, $wantsJson);
-}
-
 $ipHash = substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|' . __FILE__), 0, 16);
-$file = $dir . '/mensajes.json';
-$fh = @fopen($file, 'c+');
-if (!$fh) {
-    reply_out(false, 'No se pudo guardar el mensaje.', 500, $wantsJson);
-}
-flock($fh, LOCK_EX);
-$raw = stream_get_contents($fh);
-$data = json_decode($raw ?: '[]', true);
-if (!is_array($data)) {
-    $data = [];
-}
-
-// Límite por IP (también cubre sesiones nuevas).
-$recentFromIp = 0;
-foreach ($data as $row) {
-    if (($row['ip'] ?? '') === $ipHash && strtotime((string) ($row['fecha'] ?? '')) > $now - 3600) {
-        $recentFromIp++;
-    }
-}
-if ($recentFromIp >= $limit) {
-    flock($fh, LOCK_UN);
-    fclose($fh);
+$result = save_message($message, $ipHash, $limit);
+if ($result === 'limit') {
     reply_out(false, 'Has enviado varios mensajes seguidos. Inténtalo más tarde.', 429, $wantsJson);
 }
-
-$data[] = [
-    'fecha'   => date(DATE_ATOM),
-    'mensaje' => $message,
-    'ip'      => $ipHash,
-];
-// Conserva como máximo los 500 mensajes más recientes.
-$data = array_slice($data, -500);
-
-ftruncate($fh, 0);
-rewind($fh);
-$ok = fwrite($fh, (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
-fflush($fh);
-flock($fh, LOCK_UN);
-fclose($fh);
-
-if (!$ok) {
-    reply_out(false, 'No se pudo guardar el mensaje.', 500, $wantsJson);
+if ($result !== 'ok') {
+    reply_out(false, 'No se pudo guardar el mensaje. Inténtalo de nuevo.', 500, $wantsJson);
 }
 $_SESSION['reply_times'][] = $now;
 reply_out(true, (string) c('reply.thanks', 'Recibido.'), 200, $wantsJson);

@@ -24,6 +24,7 @@ $navItems = [
 /* Datos que necesita JavaScript (sin scripts en línea: compatible con CSP). */
 $clientData = [
     'herName'   => (string) c('her_name'),
+    'age'       => trim((string) c('age', '')),
     'birthday'  => $birthday->format(DATE_ATOM),
     'celebrationHours' => max(1, (int) c('celebration_hours', 24)),
     'countdown' => c('countdown', []),

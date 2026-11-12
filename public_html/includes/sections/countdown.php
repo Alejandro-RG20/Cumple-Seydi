@@ -27,6 +27,11 @@ $parts = [
 ];
 $titleKey = ['before' => 'title_before', 'today' => 'title_after', 'past' => 'title_past'][$state];
 $textKey  = ['before' => 'text_before', 'today' => 'text_after', 'past' => 'text_past'][$state];
+// Unidad más significativa para el centro del dial
+if ($parts['days'] > 0) { $dialN = $parts['days']; $dialL = $dialN === 1 ? 'día' : 'días'; }
+elseif ($parts['hours'] > 0) { $dialN = $parts['hours']; $dialL = $dialN === 1 ? 'hora' : 'horas'; }
+elseif ($parts['minutes'] > 0) { $dialN = $parts['minutes']; $dialL = $dialN === 1 ? 'minuto' : 'minutos'; }
+else { $dialN = $parts['seconds']; $dialL = $dialN === 1 ? 'segundo' : 'segundos'; }
 $labels = ['days' => 'Días', 'hours' => 'Horas', 'minutes' => 'Minutos', 'seconds' => 'Segundos'];
 ?>
 <section class="clock-section" id="reloj" data-section="VI" data-title="Tu día" data-state="<?= e($state) ?>" data-countdown aria-labelledby="clock-title">
@@ -44,8 +49,9 @@ $labels = ['days' => 'Días', 'hours' => 'Horas', 'minutes' => 'Minutos', 'secon
             <circle class="dial__arc" cx="160" cy="160" r="128" pathLength="60" data-arc/>
         </svg>
         <div class="dial__center">
-            <span class="dial__big" data-dial-big><?= $state === 'before' ? (int) $parts['days'] : '✦' ?></span>
-            <span class="dial__small" data-dial-small><?= $state === 'before' ? ($parts['days'] === 1 ? 'día' : 'días') : e(spanish_date($target)) ?></span>
+            <?php $age = trim((string) c('age', '')); ?>
+            <span class="dial__big" data-dial-big><?= $state === 'before' ? (int) $dialN : e($age !== '' ? $age : '✦') ?></span>
+            <span class="dial__small" data-dial-small><?= $state === 'before' ? e($dialL) : e($age !== '' ? 'años · ' . spanish_date($target) : spanish_date($target)) ?></span>
         </div>
     </div>
 

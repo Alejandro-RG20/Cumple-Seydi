@@ -31,7 +31,8 @@ export function initCountdown(data) {
     const title = $('[data-clock-title]', root);
     const text = $('[data-clock-text]', root);
     const els = Object.fromEntries($$('[data-unit]', root).map((el) => [el.dataset.unit, el]));
-    const smallDate = small?.textContent || '';
+    const age = String(data.age || '').trim();
+    const smallDate = (age ? 'años · ' : '') + (root.querySelector('.clock-section__date')?.textContent.split(' · ')[0] || '');
 
     // 60 marcas del dial (las de cada 5 son mayores)
     const NS = 'http://www.w3.org/2000/svg';
@@ -68,7 +69,7 @@ export function initCountdown(data) {
             title.textContent = next === 'today' ? (texts.title_after || '') : (texts.title_past || '');
             text.textContent = next === 'today' ? (texts.text_after || '') : (texts.text_past || '');
             units.hidden = true;
-            big.textContent = '✦';
+            big.textContent = age || '✦';
             small.textContent = smallDate;
             arc.style.strokeDasharray = '60 0';
             ticks.forEach((t) => t.classList.add('on'));
@@ -109,8 +110,13 @@ export function initCountdown(data) {
                 prev[k] = v;
             }
         }
-        big.textContent = String(parts.days);
-        small.textContent = parts.days === 1 ? 'día' : 'días';
+        // El centro del dial muestra la unidad más significativa que queda
+        const [n, one, many] = parts.days > 0 ? [parts.days, 'día', 'días']
+            : parts.hours > 0 ? [parts.hours, 'hora', 'horas']
+            : parts.minutes > 0 ? [parts.minutes, 'minuto', 'minutos']
+            : [parts.seconds, 'segundo', 'segundos'];
+        big.textContent = String(n);
+        small.textContent = n === 1 ? one : many;
         // El arco y las marcas representan los segundos del minuto en curso
         const sec = 60 - parts.seconds;
         arc.style.strokeDasharray = `${sec % 60} 60`;

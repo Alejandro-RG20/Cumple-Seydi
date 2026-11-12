@@ -11,12 +11,12 @@ DirectoryIndex index.php index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # Carpetas internas: configuración, código PHP incluido, contenido y almacenamiento
-    RewriteRule ^(config|includes|data|storage)(/|$) - [F,L]
+    RewriteRule ^(config|includes|data|storage|database)(/|$) - [F,L]
     # Archivos ocultos (.git, .env…) excepto .well-known
     RewriteRule (^|/)\.(?!well-known/) - [F,L]
 </IfModule>
 
-<FilesMatch "(?i)(\.(md|example|bak|old|orig|sql|log|ini|sh|json|lock|dist)|~)$">
+<FilesMatch "(?i)(\.(md|example|bak|old|orig|sql|gz|log|ini|sh|json|lock|dist)|~)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

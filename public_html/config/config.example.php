@@ -39,4 +39,20 @@ return [
 
     // Límite de mensajes del formulario de respuesta por visitante y hora.
     'reply_rate_limit' => 5,
+
+    // ------------------------------------------------------------------
+    //  BASE DE DATOS MySQL (InfinityFree → Control Panel → MySQL Databases)
+    //  Copia aquí los datos que te muestra el panel. Ejemplo:
+    //    'host' => 'sql123.infinityfree.com',
+    //    'name' => 'if0_12345678_seydi',
+    //    'user' => 'if0_12345678',
+    //    'pass' => 'la contraseña de tu cuenta (vPanel)',
+    // ------------------------------------------------------------------
+    'db' => [
+        'host' => '',
+        'port' => 3306,
+        'name' => '',
+        'user' => '',
+        'pass' => '',
+    ],
 ];

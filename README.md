@@ -1,6 +1,6 @@
 # Experiencia de cumpleaños · Seydi
 
-Una experiencia web cinematográfica, hecha a mano, para celebrar a Seydi.
+Una experiencia web cinematográfica creada por **Alejandro Rodríguez** para celebrar los **18 años de Seydi**.
 PHP + HTML5 + CSS3 + JavaScript (ES6) puros: **sin Node, sin npm, sin compilación**.
 Lista para subir a **InfinityFree** (o cualquier hosting compartido con PHP 7.4+ y Apache).
 
@@ -37,123 +37,70 @@ La dirección se definió con ayuda de la skill **ui-ux-pro-max** (instalada en 
 
 ---
 
-## 3. Estructura
+## 3. Instalación en InfinityFree (≈ 5 minutos)
 
-```
-public_html/                 ← sube el CONTENIDO de esta carpeta a htdocs/ en InfinityFree
-├── index.php                ← punto de entrada
-├── .htaccess                ← seguridad, caché, compresión, bloqueo de carpetas privadas
-├── robots.txt
-├── api/
-│   └── mensaje.php          ← recibe el formulario de respuesta (POST + CSRF)
-├── assets/
-│   ├── .htaccess            ← impide ejecutar scripts dentro de assets
-│   ├── css/                 ← base.css (tokens), components.css, sections.css
-│   ├── js/                  ← módulos ES6: main, intro, nav, reveal, cursor, gallery,
-│   │                          letter, countdown, music, particles, secrets, reply, utils, boot
-│   ├── fonts/               ← tipografías locales .woff2
-│   ├── images/
-│   │   ├── fotos/           ← AQUÍ VAN SUS FOTOS REALES
-│   │   └── provisionales/   ← marcadores "Foto provisional" (puedes borrarlos al final)
-│   ├── audio/               ← aquí va la canción local (opcional)
-│   └── icons/favicon.svg
-├── config/                  ← BLOQUEADO al navegador
-│   └── config.example.php   ← plantilla técnica (copiar como config.php)
-├── data/                    ← BLOQUEADO al navegador
-│   └── content.php          ← ★ TODO el contenido editable ★
-├── includes/                ← BLOQUEADO al navegador
-│   ├── bootstrap.php, functions.php, header.php, footer.php, gate.php
-│   └── sections/            ← intro, hero, story, gallery, letter, moments, countdown, final
-└── storage/                 ← BLOQUEADO; aquí se guardan los mensajes (mensajes.json)
-```
+1. **Crea la base de datos:** InfinityFree → *Control Panel* → **MySQL Databases** → crea una (por ejemplo `seydi`). Anota los 4 datos que aparecen: *MySQL Host Name*, *DB Name*, *User Name* y *Password* (es la contraseña de tu cuenta/vPanel).
+2. **Sube los archivos:** con *File Manager* o FTP (FileZilla), sube **el contenido** de `public_html/` dentro de `htdocs/` (borra antes el `index2.html` de bienvenida). Activa "mostrar archivos ocultos" para que se suba `.htaccess`.
+3. **Instala la base de datos** — elige una opción:
+   - **A (recomendada): instalador web.** Abre `https://TU-SITIO/instalar.php`, pega los 4 datos de MySQL y pulsa **Instalar**. Crea `config/config.php`, ejecuta `database/seydi.sql` (tablas + textos + fotos + usuario) y se bloquea solo.
+   - **B: phpMyAdmin.** Selecciona tu base de datos → *Importar* → `public_html/database/seydi.sql` (o `seydi.sql.gz` si el archivo pesa demasiado). Después copia `config/config.example.php` como `config/config.php` y rellena el bloque `db`.
+4. Abre tu web. Activa **HTTPS** gratis en *SSL Certificates*.
+
+No hay que ejecutar comandos ni compilar nada.
+
+### Panel de administración
+`https://TU-SITIO/admin` — usuario **`alejandro`**; la contraseña inicial te la di por el chat (no se guarda en el repositorio: solo su hash bcrypt). **Cámbiala en *Mi cuenta*.**
+Desde el panel puedes editar:
+- **Textos y ajustes:** nombres, fecha y hora, introducción, portada, carta, reloj, final, secreto, música y SEO.
+- **Historia, Galería y Momentos:** editar, añadir, borrar y reordenar.
+- **Fotos:** subir fotos nuevas (se convierten solas a WebP ligero de máx. 1600 px + miniatura, sin metadatos ni GPS) y editar sus descripciones.
+- **Mensajes:** leer lo que ella te escriba desde la web.
 
 ---
 
-## 4. Personalización (sin tocar código)
+## 4. Dónde está cada cosa: todo en MySQL
 
-### 4.1 Textos, fechas y fotos → `public_html/data/content.php`
-
-Es el **único archivo** que necesitas editar. Está comentado sección por sección:
-
-| Qué | Clave |
+| Tabla | Contenido |
 |---|---|
-| Nombre de ella / quien dedica / firma / inicial del sello | `her_name`, `from_name`, `signature`, `monogram` |
-| Fecha y hora del cumpleaños + zona horaria | `birthday` (`'AAAA-MM-DD HH:MM'`), `timezone` |
-| Frases de la introducción | `intro.lines` |
-| Portada (título, mensaje, foto principal) | `hero` |
-| Capítulos de la historia | `story` (añade o quita bloques) |
-| Fotos de la galería | `gallery` |
-| Carta (saludo, cuerpo, despedida) | `letter` — párrafos separados por una línea vacía |
-| Momentos (y su composición) | `moments` (`layout`: polaroid, split, quote, flip, ticket) |
-| Textos del reloj | `countdown` |
-| Mensaje final y foto | `final` |
-| Mensaje secreto de las estrellas | `secret` |
-| Formulario de respuesta | `reply` (`'enabled' => false` para ocultarlo) |
-| Música | `music` |
-| Título/descripción para compartir | `seo` |
+| `settings` | Todos los textos y ajustes (clave/valor) |
+| `photos` | Las fotos en WebP (grande + miniatura) guardadas como BLOB |
+| `story` / `gallery` / `moments` | Capítulos, galería y momentos, con su orden |
+| `messages` | Los mensajes que ella deja |
+| `admins` | Usuarios del panel (contraseña con bcrypt, bloqueo tras 5 intentos) |
 
-Todo lo marcado con **`[PROVISIONAL]`** o `[Fecha]` es contenido de ejemplo para reemplazar. No se inventaron fechas ni acontecimientos.
+- `foto.php?f=slug` sirve las fotos desde la base, con caché larga en el navegador.
+- `data/content.php` es la **semilla** con la que se generó el SQL y el **respaldo**: si MySQL fallara, la web sigue mostrando los textos.
+- Para regenerar el SQL (solo desarrollo): `php tools/build-sql.php --photos=CARPETA --user=alejandro --hash='HASH'`.
 
-> ⚠️ **La fecha `2026-12-31 00:00` es provisional.** Cámbiala por la real.
-
-Todo el texto se escapa automáticamente (seguro contra XSS): escribe texto normal, sin HTML.
-
-### 4.2 Cómo poner sus fotos
-
-1. Reduce cada foto a ~2000 px en el lado mayor (≈300–500 KB). Recomendado: <https://squoosh.app>.
-2. Súbelas a `assets/images/fotos/` con nombres simples, sin espacios: `primera-cita.jpg`.
-3. En `data/content.php` cambia la ruta, por ejemplo:
-   ```php
-   'photo' => ['src' => 'fotos/primera-cita.jpg', 'alt' => 'Nuestra primera cita'],
-   ```
-4. Listo. Las dimensiones se leen solas (no hay saltos de diseño) y las fotos **nunca se deforman** ni se alteran.
-   *Extra:* si subes también `primera-cita.webp`, la web la usará automáticamente en navegadores compatibles.
-
-Sugerencias: portada → vertical (3:4 o 4:5); final → horizontal (16:9 o 3:2); galería → mezcla de proporciones.
-
-### 4.3 Configuración técnica → `public_html/config/config.php`
-
-Copia `config/config.example.php` como `config/config.php` y ajusta:
-
-| Opción | Para qué |
-|---|---|
-| `site_url` | URL final (`https://tusitio.infinityfreeapp.com`) para SEO y vista previa al compartir. |
-| `access_code` | **Código de acceso opcional** (por ejemplo, la fecha en que se conocieron). Vacío = página pública. |
-| `access_hint` | Pista que se muestra en la pantalla del código. |
-| `indexable` | `false` (recomendado) = los buscadores no la indexan. |
-| `debug` | `true` solo mientras pruebas. |
-
-**¿Por qué no `.env`?** InfinityFree no permite variables de entorno. Un archivo PHP que devuelve un array es la alternativa compatible y segura: PHP lo ejecuta (nunca muestra su contenido) y además `.htaccess` bloquea toda la carpeta `/config`. `config.php` está en `.gitignore` para que no se suba al repositorio.
+### Fecha
+Cumpleaños: **12 de noviembre de 2026, 00:00, hora de Nicaragua (`America/Managua`)**. El reloj cuenta hacia atrás y a esa hora cambia solo a "¡Hoy es tu día!" con el **18** en el centro.
 
 ---
 
 ## 5. Música
 
-La canción elegida es la de Spotify `3AeicLnm55RqcXGBKYQolM`. Spotify no permite descargar ni alojar sus pistas (DRM y derechos de autor), así que la web ofrece dos modos, **automáticos**:
-
-**Modo Spotify (activo por defecto).** El tocadiscos de la página controla el **reproductor oficial de Spotify** (iFrame API). Empieza al pulsar *Comenzar* (nunca sin interacción). Si ella tiene sesión iniciada en Spotify en ese navegador suena la canción completa; si no, Spotify reproduce una vista previa. En algunos móviles el navegador exige tocar ▶ dentro del reproductor de Spotify: la web abre el panel y lo indica.
-
-**Modo local (control total: volumen, barra de progreso, repetición).** Sube a `assets/audio/` un archivo que **tengas derecho a usar** con el nombre `nuestra-cancion.mp3` (o cambia `music.local_file`). Si el archivo existe, se usa automáticamente en lugar de Spotify.
-
-Para cambiar de canción de Spotify: copia el enlace de la canción y pega en `music.spotify_track_id` la parte entre `/track/` y `?`.
+Viene configurada y **suena sola cuando ella pulsa "Comenzar"**, sin que tengas que tocar nada: el tocadiscos controla el reproductor oficial de Spotify con la canción `3AeicLnm55RqcXGBKYQolM` ("Tu canción").
+- Si ella tiene sesión iniciada en Spotify en ese navegador, suena la canción completa; si no, Spotify reproduce un fragmento.
+- En algunos iPhone el navegador obliga a tocar ▶ dentro de Spotify la primera vez: la web abre el panel y lo indica.
+- Opcional: si subes `assets/audio/tu-cancion.mp3` (un audio que tengas derecho a usar), se usa ese archivo con control de volumen.
 
 ---
 
-## 6. Subir a InfinityFree (paso a paso)
+## 6. Estructura
 
-1. Crea la cuenta y el sitio en <https://infinityfree.com> (subdominio gratuito o tu dominio).
-2. Edita `public_html/data/content.php` (y opcionalmente crea `config/config.php`).
-3. Abre **File Manager** (o conecta por **FTP** con FileZilla usando los datos de *FTP Details* del panel).
-4. Entra en la carpeta **`htdocs`** y borra el archivo de bienvenida (`index2.html` o similar).
-5. Sube **el contenido** de `public_html/` dentro de `htdocs/` (no la carpeta en sí): debe quedar `htdocs/index.php`, `htdocs/.htaccess`, `htdocs/assets/`…
-   - En FileZilla activa *Mostrar archivos ocultos* para que se suba `.htaccess`.
-6. Abre tu dirección. La primera visita puede tardar unos segundos (InfinityFree activa SSL y su protección anti-bots).
-7. Activa **HTTPS** desde el panel (*SSL Certificates*, gratuito) para que la sesión y el formulario funcionen con cookie segura.
-
-No hay que ejecutar comandos, instalar paquetes ni compilar nada. MySQL **no** es necesario.
-
-### Leer los mensajes que ella te deje
-Se guardan en `htdocs/storage/mensajes.json` (carpeta bloqueada al público). Ábrelo desde el File Manager de InfinityFree. No se guarda su IP: solo un identificador anónimo para limitar envíos.
+```
+public_html/            ← el contenido va dentro de htdocs/
+├── index.php, foto.php, instalar.php, .htaccess, robots.txt
+├── admin/index.php     ← panel
+├── api/mensaje.php     ← formulario (CSRF, límites)
+├── assets/             ← css, js (módulos ES6), fuentes locales, iconos
+├── config/             ← BLOQUEADO · config.example.php (+ config.php generado)
+├── data/content.php    ← BLOQUEADO · semilla/respaldo
+├── database/           ← BLOQUEADO · schema.sql, seydi.sql, seydi.sql.gz
+├── includes/           ← BLOQUEADO · bootstrap, db, admin, funciones, secciones
+└── storage/            ← BLOQUEADO · candado del instalador
+tools/build-sql.php     ← generador del SQL (no se sube)
+```
 
 ---
 
@@ -164,6 +111,8 @@ Se guardan en `htdocs/storage/mensajes.json` (carpeta bloqueada al público). Á
 - `/config`, `/data`, `/includes`, `/storage`, archivos ocultos y extensiones sensibles → **403**. Sin listado de directorios.
 - `assets/` no ejecuta scripts aunque alguien subiera uno (no existe ninguna función de subida).
 - Archivos PHP internos con guarda `defined('SEYDI_APP') || exit;` (doble protección).
+- Panel: sesión con caducidad, `password_hash` (bcrypt), bloqueo tras 5 intentos, CSRF en todas las acciones, fotos re-codificadas con GD (elimina cualquier contenido oculto y metadatos).
+- Instalador: se bloquea tras usarse; el SQL y la carpeta `database/` no son accesibles desde el navegador.
 - Formulario: solo POST, token CSRF ligado a la sesión, campo trampa (honeypot), tiempo mínimo de llenado, límite de envíos por sesión y por IP (hash), longitud máxima, limpieza de caracteres de control, escritura con bloqueo de archivo.
 - Código de acceso opcional: comparación en tiempo constante, regeneración de sesión, bloqueo temporal tras 5 intentos.
 - Cookie de sesión `HttpOnly`, `SameSite=Lax` y `Secure` en HTTPS.

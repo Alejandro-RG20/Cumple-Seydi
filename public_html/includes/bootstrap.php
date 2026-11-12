@@ -27,6 +27,7 @@ $CONFIG += [
     'indexable'        => false,
     'debug'            => false,
     'reply_rate_limit' => 5,
+    'db'               => [],
 ];
 
 /* ---------- Errores -------------------------------------------------------- */
@@ -35,12 +36,25 @@ ini_set('display_errors', $CONFIG['debug'] ? '1' : '0');
 ini_set('log_errors', '1');
 
 require __DIR__ . '/functions.php';
+require __DIR__ . '/db.php';
 
-/* ---------- Contenido editable ------------------------------------------- */
+/* ---------- Contenido: MySQL (principal) o data/content.php (respaldo) --- */
 $CONTENT = require APP_ROOT . '/data/content.php';
 if (!is_array($CONTENT)) {
-    http_response_code(500);
-    exit('El archivo data/content.php no devuelve un array válido. Revisa comas y comillas.');
+    $CONTENT = [];
+}
+$CONTENT_SOURCE = 'archivo';
+if (!defined('SEYDI_SKIP_CONTENT')) {
+    $pdo = db();
+    if ($pdo && db_installed($pdo)) {
+        try {
+            $CONTENT = content_from_db($pdo, $CONTENT);
+            $CONTENT_SOURCE = 'mysql';
+        } catch (Throwable $e) {
+            error_log('[seydi] Error leyendo contenido de MySQL: ' . $e->getMessage());
+        }
+    }
+    unset($pdo);
 }
 
 $tz = isset($CONTENT['timezone']) ? (string) $CONTENT['timezone'] : 'UTC';
@@ -62,7 +76,8 @@ if (session_status() === PHP_SESSION_NONE) {
         'samesite' => 'Lax',
     ]);
     ini_set('session.use_strict_mode', '1');
-    session_start();
+    // Las peticiones de solo lectura (fotos) no bloquean la sesión
+    session_start(defined('SEYDI_READONLY_SESSION') ? ['read_and_close' => true] : []);
 }
 
 /* ---------- Cabeceras de seguridad (refuerzo de .htaccess) --------------- */

@@ -111,37 +111,63 @@ function image_dims(string $rel): array
 }
 
 /**
- * Pinta una etiqueta <img> (o <picture> si existe una versión .webp gemela)
- * con ancho/alto explícitos, lazy loading y decodificación asíncrona.
+ * Resuelve una foto del contenido. Admite dos orígenes:
+ *   'db:slug'              → foto guardada en MySQL (tabla photos), servida por foto.php
+ *   'carpeta/archivo.jpg'  → archivo dentro de /assets/images
+ * Devuelve url, miniatura (si existe) y dimensiones reales.
+ */
+function photo_info(string $src): array
+{
+    if (strpos($src, 'db:') === 0) {
+        $meta = photo_meta(substr($src, 3));
+        if ($meta) {
+            $base = 'foto.php?f=' . rawurlencode($meta['slug']) . '&v=' . $meta['v'];
+            return [
+                'url'   => $base,
+                'thumb' => $meta['tw'] > 0 ? $base . '&s=t' : null,
+                'w' => $meta['w'], 'h' => $meta['h'], 'tw' => $meta['tw'], 'th' => $meta['th'],
+                'alt' => $meta['alt'],
+            ];
+        }
+        $src = 'provisionales/foto-01.svg';
+    }
+    $rel = image_path($src) ?? 'provisionales/foto-01.svg';
+    [$w, $h] = image_dims($rel);
+    return ['url' => asset('images/' . $rel), 'thumb' => null, 'w' => $w, 'h' => $h, 'tw' => 0, 'th' => 0, 'alt' => '', 'rel' => $rel];
+}
+
+/**
+ * Pinta una etiqueta <img> con ancho/alto explícitos, lazy loading,
+ * decodificación asíncrona y srcset (miniatura ligera + versión grande).
  *
  * @param array $photo ['src' => ..., 'alt' => ...]
  * @param array $opts  class, sizes, eager (bool), attrs (array extra)
  */
 function img(array $photo, array $opts = []): string
 {
-    $rel = image_path((string) ($photo['src'] ?? ''));
+    $info = photo_info((string) ($photo['src'] ?? ''));
     $alt = (string) ($photo['alt'] ?? '');
-    if ($rel === null) {
-        $rel = 'provisionales/foto-01.svg';
+    if ($alt === '') {
+        $alt = $info['alt'];
     }
-    [$w, $h] = image_dims($rel);
     $eager = !empty($opts['eager']);
     $attrs = [
-        'src'      => asset('images/' . $rel),
+        'src'      => $info['url'],
         'alt'      => $alt,
-        'width'    => $w,
-        'height'   => $h,
+        'width'    => $info['w'],
+        'height'   => $info['h'],
         'loading'  => $eager ? 'eager' : 'lazy',
         'decoding' => $eager ? 'sync' : 'async',
     ];
+    if ($info['thumb']) {
+        $attrs['srcset'] = $info['thumb'] . ' ' . $info['tw'] . 'w, ' . $info['url'] . ' ' . $info['w'] . 'w';
+        $attrs['sizes'] = $opts['sizes'] ?? '100vw';
+    }
     if ($eager) {
         $attrs['fetchpriority'] = 'high';
     }
     if (!empty($opts['class'])) {
         $attrs['class'] = $opts['class'];
-    }
-    if (!empty($opts['sizes'])) {
-        $attrs['sizes'] = $opts['sizes'];
     }
     foreach (($opts['attrs'] ?? []) as $k => $v) {
         $attrs[$k] = $v;
@@ -152,9 +178,9 @@ function img(array $photo, array $opts = []): string
     }
     $html .= '>';
 
-    // Si existe "foto.webp" junto a "foto.jpg", el navegador usará la WebP.
-    if (preg_match('/\.(jpe?g|png)$/i', $rel)) {
-        $webp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $rel);
+    // Archivos locales: si existe "foto.webp" junto a "foto.jpg", se usa la WebP.
+    if (!empty($info['rel']) && preg_match('/\.(jpe?g|png)$/i', $info['rel'])) {
+        $webp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $info['rel']);
         if (is_file(APP_ROOT . '/assets/images/' . $webp)) {
             $html = '<picture><source type="image/webp" srcset="' . e(asset('images/' . $webp)) . '">' . $html . '</picture>';
         }
@@ -165,21 +191,20 @@ function img(array $photo, array $opts = []): string
 /** Proporción "w / h" para CSS aspect-ratio. */
 function ratio(array $photo): string
 {
-    $rel = image_path((string) ($photo['src'] ?? '')) ?? 'provisionales/foto-01.svg';
-    [$w, $h] = image_dims($rel);
-    return $w . ' / ' . $h;
+    $info = photo_info((string) ($photo['src'] ?? ''));
+    return $info['w'] . ' / ' . $info['h'];
 }
 
 /** URL absoluta (si hay site_url) de una imagen para Open Graph. */
 function absolute_image(string $src): string
 {
     global $CONFIG;
-    $rel = image_path($src);
-    if ($rel === null) {
+    if ($src === '') {
         return '';
     }
+    $info = photo_info($src);
     $base = rtrim((string) $CONFIG['site_url'], '/');
-    return ($base !== '' ? $base . '/' : '') . 'assets/images/' . str_replace('%2F', '/', rawurlencode($rel));
+    return ($base !== '' ? $base . '/' : '') . $info['url'];
 }
 
 /** Busca el archivo de música local; devuelve la URL o null. */

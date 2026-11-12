@@ -1,23 +1,17 @@
 <?php
 /**
  * ============================================================================
- *  CONTENIDO EDITABLE — EL ÚNICO ARCHIVO QUE NECESITAS PARA PERSONALIZAR LA WEB
+ *  CONTENIDO INICIAL DE LA WEB
  * ============================================================================
  *
- *  Aquí están TODOS los textos, fechas, fotografías y la música.
- *  No necesitas tocar HTML, CSS ni JavaScript.
+ *  La web lee TODO desde la base de datos MySQL y se edita desde el panel
+ *  /admin (usuario y contraseña). Este archivo cumple dos funciones:
  *
- *  REGLAS RÁPIDAS
- *  - Los textos van entre comillas simples: 'Hola'. Si necesitas un apóstrofo
- *    escríbelo así: 'it\'s'.
- *  - Puedes escribir texto normal: todo se escapa automáticamente (seguro).
- *  - Para un salto de párrafo en textos largos usa una línea vacía.
- *  - Las fotos se referencian desde la carpeta /assets/images/
- *    Ejemplo: 'fotos/nosotros-playa.jpg'  →  /assets/images/fotos/nosotros-playa.jpg
- *  - Todo lo marcado con  [PROVISIONAL]  es contenido de ejemplo: reemplázalo.
+ *   1. Es la "semilla": con él se generó database/seydi.sql (textos + fotos).
+ *   2. Es el respaldo: si la base de datos no está disponible, la web
+ *      muestra estos textos para no quedarse en blanco.
  *
- *  Si rompes algo (por ejemplo, olvidas una coma), la web mostrará un aviso.
- *  Compara con el archivo original en el repositorio para encontrar el error.
+ *  Las fotos con prefijo 'db:' se guardan en la tabla `photos` de MySQL.
  * ============================================================================
  */
 
@@ -25,185 +19,143 @@ defined('SEYDI_APP') || exit;
 
 return [
 
-    /* ------------------------------------------------------------------
-     *  1. PERSONAS
-     * ------------------------------------------------------------------ */
-    'her_name'      => 'Seydi',                 // Nombre de ella (como aparece en grande).
-    'her_full_name' => 'Seydi',                 // Opcional: nombre completo para la carta.
-    'from_name'     => 'Tu nombre',             // [PROVISIONAL] Quien dedica la página.
-    'signature'     => 'Tu nombre',             // [PROVISIONAL] Firma manuscrita de la carta y del final.
-    'monogram'      => 'S',                     // Inicial del sello (1–2 letras).
+    /* 1. PERSONAS ------------------------------------------------------- */
+    'her_name'      => 'Seydi',
+    'her_full_name' => 'Seydi',
+    'from_name'     => 'Alejandro Rodríguez',
+    'signature'     => 'Alejandro',
+    'monogram'      => 'S',
+    'age'           => '18',
 
-    /* ------------------------------------------------------------------
-     *  2. FECHA DEL CUMPLEAÑOS
-     *  Formato: 'AAAA-MM-DD HH:MM'. La cuenta regresiva llega a cero en ese
-     *  momento exacto y después se transforma en un mensaje de celebración.
-     *  Zona horaria: https://www.php.net/manual/es/timezones.php
-     * ------------------------------------------------------------------ */
-    'birthday'          => '2026-12-31 00:00',   // [PROVISIONAL] Cambia por la fecha real.
-    'timezone'          => 'America/Mexico_City',// [PROVISIONAL] Tu zona horaria.
-    'celebration_hours' => 24,                   // Horas que dura el modo "¡Hoy es tu día!".
+    /* 2. FECHA (hora de Nicaragua) ------------------------------------- */
+    'birthday'          => '2026-11-12 00:00',
+    'timezone'          => 'America/Managua',
+    'celebration_hours' => 24,
 
-    /* ------------------------------------------------------------------
-     *  3. INTRODUCCIÓN CINEMATOGRÁFICA (pantalla inicial)
-     *  Cada elemento de 'lines' aparece como una frase independiente.
-     * ------------------------------------------------------------------ */
+    /* 3. INTRODUCCIÓN --------------------------------------------------- */
     'intro' => [
         'lines' => [
             'Hay personas que hacen que el mundo sea un lugar más bonito…',
             'Esta experiencia es para una de ellas.',
         ],
-        'button'     => 'Comenzar',
-        'hint'       => 'Mejor con sonido · toca para empezar',
-        'ring_text'  => 'una historia que merece ser contada · ',  // Texto que gira alrededor del sello.
+        'button'    => 'Comenzar',
+        'hint'      => 'Mejor con sonido · toca para empezar',
+        'ring_text' => '18 años de luz · una historia que merece ser contada · ',
     ],
 
-    /* ------------------------------------------------------------------
-     *  4. PORTADA (HERO)
-     * ------------------------------------------------------------------ */
+    /* 4. PORTADA -------------------------------------------------------- */
     'hero' => [
-        'eyebrow' => 'Feliz cumpleaños',
-        'title'   => 'Seydi',                   // Normalmente su nombre.
-        'message' => 'Hoy el mundo celebra el día en que llegó alguien capaz de volverlo más luminoso. Esta página es mi forma de decirte, despacio y con detalle, todo lo que significas para mí.', // [PROVISIONAL]
-        'photo'   => ['src' => 'provisionales/foto-02.svg', 'alt' => 'Fotografía principal de Seydi'],
+        'eyebrow' => 'Feliz cumpleaños número 18',
+        'title'   => 'Seydi',
+        'message' => 'Hoy cumples 18 y el mundo celebra el día en que llegó alguien capaz de volverlo más luminoso. Esta página es mi forma de decirte, despacio y con detalle, todo lo que significas para mí.',
+        'photo'   => ['src' => 'db:seydi-beso', 'alt' => 'Seydi'],
     ],
 
-    /* ------------------------------------------------------------------
-     *  5. NUESTRA HISTORIA (línea de tiempo)
-     *  Añade, quita o reordena capítulos libremente.
-     *  'date' es texto libre: '14 de febrero de 2023', 'Verano 2024', etc.
-     * ------------------------------------------------------------------ */
-    'story_intro' => 'Algunas historias se escriben despacio, con días pequeños que terminan siendo enormes. Esta es la nuestra.', // [PROVISIONAL]
+    /* 5. NUESTRA HISTORIA ---------------------------------------------- */
+    'story_intro' => 'Algunas historias se escriben despacio, con días pequeños que terminan siendo enormes. Esta es la nuestra, contada a mi manera.',
     'story' => [
         [
-            'date'  => '[Fecha] · Cómo comenzó todo',
-            'title' => 'El principio',
-            'text'  => '[PROVISIONAL] Escribe aquí cómo se conocieron: el lugar, la primera impresión, aquello que todavía recuerdas de ese día.',
-            'photo' => ['src' => 'provisionales/foto-01.svg', 'alt' => 'El día en que nos conocimos'],
+            'date'  => 'Capítulo uno · El comienzo',
+            'title' => 'Llegaste tú',
+            'text'  => 'No sé explicar exactamente en qué momento pasó, pero un día me di cuenta de que mis días tenían otro color. Empezaste siendo una sonrisa que buscaba sin darme cuenta y terminaste siendo la persona en la que pienso al despertar.',
+            'photo' => ['src' => 'db:juntos-al-anochecer', 'alt' => 'Seydi y Alejandro sonriendo al anochecer'],
         ],
         [
-            'date'  => '[Fecha] · Primera cita',
-            'title' => 'La primera vez',
-            'text'  => '[PROVISIONAL] Cuenta cómo fue la primera cita o el primer momento en que supiste que esto era especial.',
-            'photo' => ['src' => 'provisionales/foto-05.svg', 'alt' => 'Nuestra primera cita'],
+            'date'  => 'Capítulo dos · Bajo el mismo cielo',
+            'title' => 'Nuestras tardes azules',
+            'text'  => 'Hay cielos que se olvidan y cielos que se quedan para siempre. Los nuestros, con las nubes oscuras y ese último pedazo de sol, son de los que se quedan. Contigo, cualquier atardecer se vuelve un recuerdo.',
+            'photo' => ['src' => 'db:beso-bajo-el-cielo', 'alt' => 'Alejandro besa la mejilla de Seydi bajo el cielo nocturno'],
         ],
         [
-            'date'  => '[Fecha] · Un recuerdo importante',
-            'title' => 'Lo que nos unió',
-            'text'  => '[PROVISIONAL] Un momento que los acercó: un viaje, una conversación, un día difícil que superaron juntos.',
-            'photo' => ['src' => 'provisionales/foto-04.svg', 'alt' => 'Un recuerdo importante'],
+            'date'  => 'Capítulo tres · Tu risa',
+            'title' => 'La risa que me desarma',
+            'text'  => 'Me encanta que no tengas miedo de ser tú: la que hace caras, la que se ríe con todo el cuerpo, la que convierte una foto seria en una carcajada. Esa versión tuya es mi favorita.',
+            'photo' => ['src' => 'db:risas-y-brackets', 'alt' => 'Seydi riendo junto a Alejandro'],
         ],
         [
-            'date'  => '[Fecha] · Experiencias compartidas',
-            'title' => 'Todo lo que vivimos',
-            'text'  => '[PROVISIONAL] Las aventuras, los lugares, las costumbres pequeñas que ahora son solo de ustedes.',
-            'photo' => ['src' => 'provisionales/foto-03.svg', 'alt' => 'Experiencias compartidas'],
+            'date'  => 'Capítulo cuatro · Tú',
+            'title' => 'Todo lo que eres',
+            'text'  => 'Eres fuerza y ternura al mismo tiempo. Eres la mirada que lo dice todo sin hablar, la que cuida, la que sueña en grande. Verte crecer y convertirte en la mujer que eres es uno de los regalos más bonitos de mi vida.',
+            'photo' => ['src' => 'db:seydi-mirada', 'alt' => 'Retrato de Seydi'],
         ],
         [
-            'date'  => 'Hoy',
+            'date'  => 'Hoy · 18 años',
             'title' => 'Y lo que viene',
-            'text'  => '[PROVISIONAL] Cierra la historia mirando hacia adelante: lo que sueñas vivir con ella.',
-            'photo' => ['src' => 'provisionales/foto-08.svg', 'alt' => 'Nosotros hoy'],
+            'text'  => 'Hoy empieza una etapa nueva para ti, y quiero estar ahí para verla. Que estos 18 sean el inicio de todo lo que sueñas: yo voy a estar a tu lado, aplaudiendo cada paso.',
+            'photo' => ['src' => 'db:seydi-espejo', 'alt' => 'Seydi frente al espejo'],
         ],
     ],
 
-    /* ------------------------------------------------------------------
-     *  6. GALERÍA
-     *  Las fotos pueden tener cualquier proporción: nunca se deforman.
-     *  'caption' es opcional (aparece en el visor a pantalla completa).
-     * ------------------------------------------------------------------ */
+    /* 6. GALERÍA -------------------------------------------------------- */
     'gallery_intro' => 'Fragmentos de luz que quiero guardar para siempre.',
     'gallery' => [
-        ['src' => 'provisionales/foto-02.svg', 'alt' => 'Fotografía 1', 'caption' => '[PROVISIONAL] Pie de foto opcional'],
-        ['src' => 'provisionales/foto-05.svg', 'alt' => 'Fotografía 2', 'caption' => ''],
-        ['src' => 'provisionales/foto-07.svg', 'alt' => 'Fotografía 3', 'caption' => ''],
-        ['src' => 'provisionales/foto-04.svg', 'alt' => 'Fotografía 4', 'caption' => ''],
-        ['src' => 'provisionales/foto-01.svg', 'alt' => 'Fotografía 5', 'caption' => ''],
-        ['src' => 'provisionales/foto-06.svg', 'alt' => 'Fotografía 6', 'caption' => ''],
-        ['src' => 'provisionales/foto-03.svg', 'alt' => 'Fotografía 7', 'caption' => ''],
-        ['src' => 'provisionales/foto-08.svg', 'alt' => 'Fotografía 8', 'caption' => ''],
-        ['src' => 'provisionales/foto-02.svg', 'alt' => 'Fotografía 9', 'caption' => ''],
-        ['src' => 'provisionales/foto-05.svg', 'alt' => 'Fotografía 10', 'caption' => ''],
+        ['src' => 'db:seydi-beso',         'alt' => 'Seydi lanzando un beso',               'caption' => 'Ese beso a la cámara que en realidad era para mí.'],
+        ['src' => 'db:juntos-al-anochecer', 'alt' => 'Seydi y Alejandro al anochecer',       'caption' => 'Tú, yo y un cielo que parecía pintado.'],
+        ['src' => 'db:seydi-mirada',        'alt' => 'Retrato de Seydi',                     'caption' => 'Esa mirada que me dice todo sin decir nada.'],
+        ['src' => 'db:beso-bajo-el-cielo',  'alt' => 'Beso en la mejilla bajo el cielo',     'caption' => 'Mi lugar favorito: a tu lado.'],
+        ['src' => 'db:seydi-espejo',        'alt' => 'Seydi frente al espejo',               'caption' => 'Siempre con estilo propio.'],
+        ['src' => 'db:risas-y-brackets',    'alt' => 'Seydi riendo junto a Alejandro',       'caption' => 'La risa más bonita del mundo, con brackets y todo.'],
+        ['src' => 'db:seydi-traviesa',      'alt' => 'Seydi sacando la lengua',              'caption' => 'Tu lado travieso, mi favorito.'],
     ],
 
-    /* ------------------------------------------------------------------
-     *  7. CARTA
-     *  'body': separa los párrafos con una línea vacía.
-     * ------------------------------------------------------------------ */
+    /* 7. CARTA ---------------------------------------------------------- */
     'letter' => [
         'envelope_label' => 'Para ti, Seydi',
         'envelope_hint'  => 'Toca el sello para abrir',
         'greeting'       => 'Mi amor,',
         'body'           => <<<'TXT'
-[PROVISIONAL] Escribe aquí tu carta. Este texto aparecerá poco a poco, como si se escribiera frente a ella.
+Hoy cumples 18 años y quise regalarte algo que no se rompa ni se pierda: un lugar hecho solo para ti, con nuestras fotos, nuestras risas y todo lo que a veces no sé decirte en voz alta.
 
-Puedes usar tantos párrafos como quieras. Deja una línea vacía entre párrafo y párrafo para separarlos.
+Gracias por ser como eres. Por tu risa que contagia, por tus ocurrencias, por la forma en que miras las cosas y por la paciencia que me tienes. Gracias por elegirme y por dejarme ser parte de tu vida.
 
-Habla de lo que admiras de ella, de lo que te enseñó, de lo que sientes cuando la ves sonreír y de lo que deseas para este nuevo año de su vida.
+Admiro a la mujer en la que te estás convirtiendo: valiente, auténtica, cariñosa y con un corazón enorme. Nunca dejes que nadie apague esa luz que tienes, porque es de las cosas más bonitas que he visto.
+
+Te deseo un año lleno de sueños cumplidos, de días tranquilos y de noches bajo cielos bonitos. Y donde sea que te lleven estos 18, quiero seguir caminando a tu lado.
+
+Feliz cumpleaños, mi niña. Te quiero muchísimo.
 TXT,
         'closing'        => 'Con todo mi amor,',
     ],
 
-    /* ------------------------------------------------------------------
-     *  8. MOMENTOS QUE QUIERO RECORDAR
-     *  'layout' define la composición de cada tarjeta:
-     *    'polaroid' → foto instantánea inclinada con texto manuscrito
-     *    'split'    → foto grande + texto editorial al lado
-     *    'quote'    → solo texto, como una cita (no necesita foto)
-     *    'flip'     → tarjeta que se gira al tocarla para revelar un mensaje
-     *    'ticket'   → como la entrada de un evento: ideal para fechas
-     * ------------------------------------------------------------------ */
+    /* 8. MOMENTOS ------------------------------------------------------- */
     'moments_intro' => 'No todos los momentos importantes hacen ruido. Estos son algunos de los que llevo conmigo.',
     'moments' => [
-        ['layout' => 'polaroid', 'date' => '[Fecha]', 'title' => '[PROVISIONAL] Aquella tarde', 'text' => 'Describe un momento sencillo que nunca vas a olvidar.', 'photo' => ['src' => 'provisionales/foto-04.svg', 'alt' => 'Aquella tarde']],
-        ['layout' => 'quote',    'date' => '',        'title' => '',                                'text' => '[PROVISIONAL] Una frase que ella dijo y que se te quedó grabada.', 'author' => 'Seydi'],
-        ['layout' => 'split',    'date' => '[Fecha]', 'title' => '[PROVISIONAL] Nuestro lugar',     'text' => 'Un sitio que ahora significa algo distinto porque estuvieron ahí juntos.', 'photo' => ['src' => 'provisionales/foto-05.svg', 'alt' => 'Nuestro lugar']],
-        ['layout' => 'flip',     'date' => '',        'title' => 'Toca para descubrir',              'text' => '[PROVISIONAL] Un pequeño secreto, una promesa o un recuerdo divertido.', 'photo' => ['src' => 'provisionales/foto-01.svg', 'alt' => 'Un recuerdo escondido']],
-        ['layout' => 'ticket',   'date' => '[Fecha]', 'title' => '[PROVISIONAL] El concierto / el viaje', 'text' => 'Un evento al que fueron juntos. Lugar y hora, como en la entrada.', 'place' => '[Lugar]'],
+        ['layout' => 'polaroid', 'date' => 'Un instante cualquiera', 'title' => 'Tu lado travieso', 'text' => 'Puedes estar seria un segundo y al siguiente estar sacándome la lengua. Así eres, y así te quiero.', 'photo' => ['src' => 'db:seydi-traviesa', 'alt' => 'Seydi sacando la lengua']],
+        ['layout' => 'quote', 'date' => '', 'title' => '', 'text' => 'Contigo aprendí que los mejores momentos no se planean: simplemente pasan cuando estamos juntos.', 'author' => 'Alejandro'],
+        ['layout' => 'split', 'date' => 'Al caer la tarde', 'title' => 'Nuestro cielo', 'text' => 'Ese cielo azul oscuro, la hierba, tu cabeza en mi hombro y la sensación de que el mundo podía esperar. Si pudiera repetir un día, sería uno así contigo.', 'photo' => ['src' => 'db:juntos-al-anochecer', 'alt' => 'Seydi y Alejandro bajo el cielo azul']],
+        ['layout' => 'flip', 'date' => '', 'title' => 'Toca para descubrir', 'text' => 'Te debo una cita especial para celebrar tus 18. Tú eliges el lugar; yo pongo el resto.', 'photo' => ['src' => 'db:seydi-espejo', 'alt' => 'Seydi frente al espejo']],
+        ['layout' => 'ticket', 'date' => '12 de noviembre de 2026', 'title' => 'Tus 18 años', 'text' => 'Entrada válida para celebrar contigo hoy y todos los cumpleaños que vengan.', 'place' => 'Donde tú estés'],
     ],
 
-    /* ------------------------------------------------------------------
-     *  9. CUENTA REGRESIVA
-     * ------------------------------------------------------------------ */
+    /* 9. CUENTA REGRESIVA ---------------------------------------------- */
     'countdown' => [
         'title_before' => 'Falta muy poco',
-        'text_before'  => 'Cada segundo nos acerca a tu día.',
+        'text_before'  => 'Cada segundo nos acerca a tus 18.',
         'title_after'  => '¡Hoy es tu día!',
-        'text_after'   => 'Que este nuevo año te devuelva multiplicado todo lo bonito que regalas.',
+        'text_after'   => 'Feliz cumpleaños número 18. Que este nuevo año te devuelva multiplicado todo lo bonito que regalas.',
         'title_past'   => 'Celebrándote siempre',
         'text_past'    => 'Tu cumpleaños ya pasó, pero celebrarte no tiene fecha.',
     ],
 
-    /* ------------------------------------------------------------------
-     *  10. MENSAJE FINAL
-     * ------------------------------------------------------------------ */
+    /* 10. MENSAJE FINAL ------------------------------------------------- */
     'final' => [
         'eyebrow' => 'Para terminar… o para empezar',
         'lines'   => [
-            '[PROVISIONAL] Gracias por existir,',
+            'Gracias por existir,',
             'por cada risa, cada abrazo y cada día compartido.',
-            'Feliz cumpleaños.',
+            'Feliz cumpleaños, Seydi.',
         ],
-        'photo'   => ['src' => 'provisionales/foto-06.svg', 'alt' => 'Nosotros'],
-        'closing' => 'Te quiero más de lo que esta página puede decir.', // [PROVISIONAL]
+        'photo'   => ['src' => 'db:beso-bajo-el-cielo', 'alt' => 'Seydi y Alejandro'],
+        'closing' => 'Te quiero más de lo que esta página puede decir.',
     ],
 
-    /* ------------------------------------------------------------------
-     *  11. SORPRESA OCULTA
-     *  Hay estrellas escondidas en la página. Al encontrarlas todas se
-     *  desbloquea este mensaje secreto.
-     * ------------------------------------------------------------------ */
+    /* 11. SORPRESA OCULTA ---------------------------------------------- */
     'secret' => [
         'title'   => 'Encontraste todas las estrellas',
-        'message' => '[PROVISIONAL] Un mensaje secreto solo para ella: un vale por una cena, una promesa, un plan sorpresa…',
+        'message' => 'Sabía que las encontrarías. Este secreto vale por un abrazo largo, una salida a donde tú quieras y un "sí" a lo que me pidas hoy. Feliz cumpleaños, mi amor.',
     ],
 
-    /* ------------------------------------------------------------------
-     *  12. RESPUESTA (formulario privado)
-     *  Ella puede dejarte un mensaje. Se guarda en /storage/mensajes.json
-     *  (carpeta protegida). Puedes leerlo desde el administrador de
-     *  archivos de InfinityFree. Pon 'enabled' => false para ocultarlo.
-     * ------------------------------------------------------------------ */
+    /* 12. RESPUESTA ----------------------------------------------------- */
     'reply' => [
         'enabled'     => true,
         'title'       => '¿Me dejas unas palabras?',
@@ -212,31 +164,19 @@ TXT,
         'thanks'      => 'Recibido. Lo guardaré para siempre.',
     ],
 
-    /* ------------------------------------------------------------------
-     *  13. MÚSICA
-     *  Opción A (recomendada, control total y volumen):
-     *    Sube un archivo de audio que tengas derecho a usar a
-     *    /assets/audio/ y escribe su nombre en 'local_file'.
-     *    Si el archivo existe, se usa automáticamente.
-     *  Opción B (por defecto): reproductor oficial de Spotify integrado,
-     *    controlado desde el tocadiscos de la página. Spotify reproduce la
-     *    canción completa si ella tiene sesión iniciada en Spotify en ese
-     *    navegador; si no, reproduce una vista previa.
-     * ------------------------------------------------------------------ */
+    /* 13. MÚSICA (suena sola al pulsar "Comenzar") ---------------------- */
     'music' => [
-        'local_file'       => 'nuestra-cancion.mp3',      // Dentro de /assets/audio/
-        'spotify_track_id' => '3AeicLnm55RqcXGBKYQolM',   // Parte final del enlace de Spotify.
-        'title'            => 'Nuestra canción',          // Texto que muestra el reproductor.
-        'artist'           => 'Toca para escuchar',
-        'volume'           => 0.6,                        // 0.0 – 1.0 (solo audio local)
+        'local_file'       => 'tu-cancion.mp3',
+        'spotify_track_id' => '3AeicLnm55RqcXGBKYQolM',
+        'title'            => 'Tu canción',
+        'artist'           => 'Para ti, Seydi',
+        'volume'           => 0.6,
     ],
 
-    /* ------------------------------------------------------------------
-     *  14. SEO / COMPARTIR
-     * ------------------------------------------------------------------ */
+    /* 14. SEO ----------------------------------------------------------- */
     'seo' => [
         'title'       => 'Feliz cumpleaños, Seydi',
-        'description' => 'Una experiencia hecha a mano para celebrar a Seydi.',
-        'share_image' => 'provisionales/foto-06.svg', // Ideal: un JPG de 1200×630 (las redes no muestran SVG).
+        'description' => 'Una experiencia hecha a mano por Alejandro Rodríguez para celebrar los 18 años de Seydi.',
+        'share_image' => 'db:juntos-al-anochecer',
     ],
 ];
