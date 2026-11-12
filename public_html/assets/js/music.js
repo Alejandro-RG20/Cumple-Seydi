@@ -79,6 +79,25 @@ export function initMusic(cfg) {
        ===================================================================== */
     if (mode === 'local') {
         audio.loop = true;
+
+        // Con data-prefetch la canción se descarga en segundo plano y se reproduce
+        // desde memoria (blob): así suena al instante y funciona en páginas con
+        // políticas de contenido estrictas.
+        let blobReady = null;
+        if (audio.dataset.prefetch && window.fetch && window.URL) {
+            blobReady = fetch(audio.getAttribute('src'))
+                .then((r) => (r.ok ? r.blob() : Promise.reject(new Error('HTTP ' + r.status))))
+                .then((blob) => {
+                    const playingNow = !audio.paused;
+                    const t = audio.currentTime;
+                    audio.src = URL.createObjectURL(blob);
+                    if (playingNow) {
+                        audio.currentTime = t;
+                        audio.play().catch(() => {});
+                    }
+                })
+                .catch((err) => console.warn('[música] precarga:', err.message));
+        }
         const startVol = Math.max(0, Math.min(1, cfg.volume ?? 0.6));
         audio.volume = startVol;
         volume.value = String(Math.round(startVol * 100));
@@ -88,6 +107,10 @@ export function initMusic(cfg) {
 
         const play = async () => {
             try {
+                if (blobReady) {
+                    status.textContent = 'Cargando…';
+                    await blobReady;
+                }
                 if (audio.preload === 'none') audio.preload = 'auto';
                 await audio.play();
             } catch (err) {
