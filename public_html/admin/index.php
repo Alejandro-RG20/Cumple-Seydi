@@ -149,6 +149,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 flash('Descripción guardada.');
                 $redirect($self('fotos'));
 
+            case 'photo_rotate':
+                $ok = rotate_photo($pdo, (string) ($_POST['slug'] ?? ''), ($_POST['dir'] ?? '') !== 'ccw');
+                flash($ok ? 'Foto girada.' : 'No se pudo girar la foto.', $ok ? 'ok' : 'error');
+                $redirect($self('fotos'));
+
             case 'photo_delete':
                 $slug = (string) ($_POST['slug'] ?? '');
                 $uses = photo_usage($pdo, $slug);
@@ -343,6 +348,14 @@ $csrf = '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
                 <label>Descripción <input name="alt" value="<?= e($p['alt']) ?>" maxlength="250"></label>
                 <button class="btn btn--small" type="submit">Guardar</button>
             </form>
+            <div class="rotate-row">
+                <?php foreach (['ccw' => '↺ Girar izquierda', 'cw' => 'Girar derecha ↻'] as $dir => $lbl): ?>
+                <form method="post" action="<?= e($self('fotos')) ?>">
+                    <?= $csrf ?><input type="hidden" name="action" value="photo_rotate"><input type="hidden" name="slug" value="<?= e($p['slug']) ?>"><input type="hidden" name="dir" value="<?= e($dir) ?>">
+                    <button class="btn btn--small btn--ghost" type="submit"><?= e($lbl) ?></button>
+                </form>
+                <?php endforeach; ?>
+            </div>
             <form method="post" action="<?= e($self('fotos')) ?>">
                 <?= $csrf ?><input type="hidden" name="action" value="photo_delete"><input type="hidden" name="slug" value="<?= e($p['slug']) ?>">
                 <button class="btn btn--small btn--danger" type="submit">Eliminar</button>

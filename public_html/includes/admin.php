@@ -277,10 +277,10 @@ function process_upload(array $file)
     if (!$src) {
         return 'No se pudo leer la imagen.';
     }
-    // Orientación EXIF de fotos de móvil
-    if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
-        $exif = @exif_read_data($file['tmp_name']);
-        $rot = [3 => 180, 6 => -90, 8 => 90][(int) ($exif['Orientation'] ?? 1)] ?? 0;
+    // Orientación EXIF de fotos de móvil (iPhone guarda la foto "de lado" + una etiqueta).
+    // Se lee sin depender de la extensión exif, que InfinityFree puede no tener.
+    if ($info[2] === IMAGETYPE_JPEG) {
+        $rot = [3 => 180, 6 => -90, 8 => 90][jpeg_orientation($file['tmp_name'])] ?? 0;
         if ($rot) {
             $src = imagerotate($src, $rot, 0);
         }
@@ -289,6 +289,75 @@ function process_upload(array $file)
     [$thumb, $tw, $th] = encode_image($src, 800, 74);
     imagedestroy($src);
     return compact('data', 'w', 'h', 'mime', 'thumb', 'tw', 'th');
+}
+
+/** Lee la etiqueta EXIF "Orientation" (1–8) de un JPEG sin la extensión exif. */
+function jpeg_orientation(string $path): int
+{
+    $fh = @fopen($path, 'rb');
+    if (!$fh) {
+        return 1;
+    }
+    $d = (string) fread($fh, 262144);
+    fclose($fh);
+    $len = strlen($d);
+    if ($len < 4 || substr($d, 0, 2) !== "\xFF\xD8") {
+        return 1;
+    }
+    $pos = 2;
+    while ($pos + 4 <= $len && $d[$pos] === "\xFF") {
+        $marker = ord($d[$pos + 1]);
+        $size = unpack('n', substr($d, $pos + 2, 2))[1];
+        if ($marker === 0xE1 && substr($d, $pos + 4, 6) === "Exif\0\0") {
+            $t = $pos + 10;
+            $le = substr($d, $t, 2) === 'II';
+            $u16 = static fn ($o) => $o + 2 <= $len ? unpack($le ? 'v' : 'n', substr($d, $o, 2))[1] : 0;
+            $u32 = static fn ($o) => $o + 4 <= $len ? unpack($le ? 'V' : 'N', substr($d, $o, 4))[1] : 0;
+            $ifd = $t + $u32($t + 4);
+            $n = $u16($ifd);
+            for ($i = 0; $i < $n && $i < 200; $i++) {
+                $e = $ifd + 2 + $i * 12;
+                if ($u16($e) === 0x0112) {
+                    $v = $u16($e + 8);
+                    return $v >= 1 && $v <= 8 ? $v : 1;
+                }
+            }
+            return 1;
+        }
+        if ($marker === 0xDA || $size < 2) {
+            break;
+        }
+        $pos += 2 + $size;
+    }
+    return 1;
+}
+
+/** Gira 90° una foto guardada (versión grande y miniatura). */
+function rotate_photo(PDO $pdo, string $slug, bool $clockwise): bool
+{
+    $st = $pdo->prepare('SELECT data FROM photos WHERE slug = ?');
+    $st->execute([$slug]);
+    $data = $st->fetchColumn();
+    if ($data === false || !function_exists('imagecreatefromstring')) {
+        return false;
+    }
+    $src = @imagecreatefromstring(is_resource($data) ? stream_get_contents($data) : (string) $data);
+    if (!$src) {
+        return false;
+    }
+    $src = imagerotate($src, $clockwise ? -90 : 90, 0);
+    [$full, $w, $h, $mime] = encode_image($src, 1600, 86);
+    [$thumb, $tw, $th] = encode_image($src, 800, 76);
+    imagedestroy($src);
+    $up = $pdo->prepare('UPDATE photos SET data = ?, thumb = ?, mime = ?, width = ?, height = ?, thumb_width = ?, thumb_height = ?, bytes = ? WHERE slug = ?');
+    $up->bindValue(1, $full, PDO::PARAM_LOB);
+    $up->bindValue(2, $thumb, PDO::PARAM_LOB);
+    $up->bindValue(3, $mime);
+    foreach ([4 => $w, 5 => $h, 6 => $tw, 7 => $th, 8 => strlen($full)] as $i => $v) {
+        $up->bindValue($i, $v, PDO::PARAM_INT);
+    }
+    $up->bindValue(9, $slug);
+    return $up->execute();
 }
 
 /** Crea un slug único a partir de un texto. */

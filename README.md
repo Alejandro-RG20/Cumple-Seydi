@@ -56,6 +56,16 @@ Desde el panel puedes editar:
 - **Fotos:** subir fotos nuevas (se convierten solas a WebP ligero de máx. 1600 px + miniatura, sin metadatos ni GPS) y editar sus descripciones.
 - **Mensajes:** leer lo que ella te escriba desde la web.
 
+### Actualización 2 (fotos nuevas)
+Archivos en `public_html/database/`. Impórtalos en **phpMyAdmin → tu base → Importar**, en este orden:
+1. `actualizacion-2-textos.sql`: pies de foto para las 16 fotos nuevas, 5 capítulos nuevos de la historia, 5 momentos nuevos y quita la foto duplicada "Jinotepe 2".
+2. `actualizacion-2-fotos.sql.gz`: endereza las 6 fotos que se subieron giradas.
+
+Se pueden importar más de una vez sin duplicar nada, y no tocan los mensajes ni la contraseña del panel.
+**No vuelvas a importar `seydi.sql`**: restablece la web al contenido original.
+
+Para que las próximas fotos del iPhone suban derechas, y para tener los botones **Girar** en *Fotos*, sube por FTP o con el gestor de archivos: `includes/admin.php`, `admin/index.php` y `assets/css/admin.css`.
+
 ---
 
 ## 4. Dónde está cada cosa: todo en MySQL
